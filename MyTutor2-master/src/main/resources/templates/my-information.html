@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/commons::head"></head>
+
+<body>
+
+<header th:replace="fragments/commons::nav"></header>
+
+<main class="container py-4">
+    <div class="profile-container">
+
+        <div class="profile-header">
+
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+
+            <h1 class="profile-title" th:text="${userName}"></h1>
+            <p class="profile-subtitle" th:text="${userEmail}"></p>
+        </div>
+
+        <div class="profile-stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+
+                <div class="stat-content">
+                    <h3 class="stat-value" th:text="${numberOfClasses}"></h3>
+                    <p class="stat-label">Classes</p>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+
+                <div class="stat-content">
+                    <h3 class="stat-value" th:text="${averagePriceEUR} + ' EUR'"></h3>
+                    <p class="stat-label">Avg. Price (EUR)</p>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+
+                <div class="stat-content">
+                    <h3 class="stat-value" th:text="${averagePriceBGN} + ' Leva'"></h3>
+                    <p class="stat-label">Avg. Price (BGN)</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="offers-list-container">
+
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    My Tutoring Offers
+                </h2>
+
+                <a href="/tutorials/add" class="btn-action secondary">
+                    <i class="fas fa-plus-circle"></i> Add New Offer
+                </a>
+
+            </div>
+
+            <div class="offers-list">
+                <div th:each="w:${submittedByMeTutorialsAsView}" th:object="${w}" class="user-offer-card">
+
+
+                    <div class="offer-card-header">
+                        <h3 class="offer-name" th:text="*{name}"></h3>
+                        <div class="offer-price">
+                            <span th:text="*{price}"></span>
+                            <span class="price-currency">EUR</span>
+                        </div>
+                    </div>
+
+                    <div class="offer-description">
+                        <p th:text="*{description}"></p>
+                    </div>
+
+                    <div class="offer-actions">
+<!--                        <a class="btn-edit" href="#">-->
+<!--                            <i class="fas fa-pencil-alt" style="margin-right: 8px;"></i> Edit-->
+<!--                        </a>-->
+
+                        <a class="btn-delete" th:href="@{/tutorials/remove/{id}(id = *{id})}">
+                            <i class="fas fa-trash-alt" style="margin-right: 8px;"></i> Remove
+                        </a>
+                    </div>
+
+
+                </div>
+
+                <div th:if="${submittedByMeTutorialsAsView.isEmpty()}" class="no-offers">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h3>No mathematics offers available</h3>
+                    <p>Check back later or explore other subject areas.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="div-home" style="display: flex; align-items: center; padding: 1rem 1rem;">
+            <p class="subject-description" style="padding-top: 1.2rem">Account termination is permanent and cannot be
+                undone.</p>
+
+            <form th:action="@{/users/delete-account}" th:method="post" style="margin: 0;">
+                <button type="submit" class="button-delete-account"
+                        onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                    <i class="fas fa-trash-alt" style="margin-right: 8px;"></i> Delete account
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+</main>
+
+
+</body>
+</html>

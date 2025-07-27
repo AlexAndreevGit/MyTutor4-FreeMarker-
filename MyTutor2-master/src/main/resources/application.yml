@@ -1,0 +1,58 @@
+#Set properties in Sprong
+spring:
+  application:
+    name: demo2
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/MyTutorProject10?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
+    username: root
+    password: "!VarnaVarna35!"
+#    url: "jdbc:mysql://alv4v3hlsipxnujn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ctw1urnaqst0giuj"
+#    username: le4t7y4rkbbli3j5
+#    password: mqpuo3fcsf2nhrdy
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 5MB
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  jpa:
+    # Choose either MySQL 8 or MySQL 5 below
+    # For MySQL 8
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+    #    #For MySQL 5
+    #    #database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+    #  The value update instructs Hibernate to automatically update the database schema when the application starts.
+    hibernate:
+      ddl-auto: update
+
+    #  disables Hibernate's Open Session in View pattern to close the persistence context earlier, resulting in better resource management and enforcing best practices for data access.
+    open-in-view: false
+
+    # is a developer-focused feature for better readability of SQL. SQL statements formated undereachother and not in a single line
+    properties:
+      hibernate:
+        format_sql: true
+
+    #      ensures that data source initialization is delayed until the application context is fully prepared.
+    defer-datasource-initialization: true
+
+  #ExchangeRates_Step_1 -> Settings/Configuration to connect to the REST API
+  #ExchangeRates_Step_2 -> configure FOREX_API_KEY under environment variables
+forex: #creating a Section
+  api:
+    key: ${FOREX_API_KEY:}   # the key is my unique ID that I got after the registration. I have to pay if I wat it after 1000 times .The keys are information that should not be in the code
+    url: "https://openexchangerates.org/api/latest.json?app_id={app_id}"  #app_id is a placeholder
+    base: "USD"
+
+
+openai:
+  api:
+    key: ${OPENAI-API-KEY:}
+    url: "https://api.openai.com/v1/chat/completions"
+  model: gpt-4o-mini-2024-07-18
+
