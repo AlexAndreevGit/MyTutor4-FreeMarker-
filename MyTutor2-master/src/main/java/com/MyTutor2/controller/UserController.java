@@ -53,18 +53,27 @@ public class UserController {
         return "register";
     }
 
+    @GetMapping("/registerFM")
+    public String registerFM(){
+        return "registerFM";
+    }
 
     @PostMapping("/register")
     public String registerConfirm(@Valid UserRegisterDTO userRegisterDTO,
                                   BindingResult bindingResult,
-                                  RedirectAttributes redirectAttributes){
+                                  RedirectAttributes redirectAttributes,
+                                  Model model){
 
         if(bindingResult.hasErrors() || !userRegisterDTO.getPassword().equals(userRegisterDTO.getConfirmPassword())){
 
             redirectAttributes.addFlashAttribute("userRegisterDTO",userRegisterDTO);
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userRegisterDTO",bindingResult);
+//            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userRegisterDTO",bindingResult);
 
-            return "redirect:register";
+//            model.addAttribute("tutorialAddDTO", tutorialAddDTO);
+            model.addAttribute("userRegisterDTO_errors", bindingResult);
+
+//            return "redirect:register";
+            return "registerFM";
         }
 
         userService.registerUser(userRegisterDTO);
@@ -89,6 +98,20 @@ public class UserController {
         return "login";
     }
 
+    @GetMapping("/loginFM")
+    public String loginFM(Model model){
+
+        UserLogInDTO userLogInDTO=new UserLogInDTO();
+        userLogInDTO.setUsername("user1");
+        userLogInDTO.setPassword("12345");
+
+        model.addAttribute("userLogInDTO",userLogInDTO);
+
+
+        return "loginFM";
+    }
+
+
     @GetMapping("/login-error")
     public String loginError(Model model) {
         model.addAttribute("loginError", true);
@@ -96,9 +119,8 @@ public class UserController {
         return "login";
     }
 
-
-    @RequestMapping(value = "/my-information", method = RequestMethod.GET)
-    public String myInformation(@AuthenticationPrincipal UserDetails userDetails, Model model){
+    @RequestMapping(value = "/my-informationFM", method = RequestMethod.GET)
+    public String myInformation(@AuthenticationPrincipal UserDetails userDetails, Model model, Authentication auth){
 
         User logedInUser= userRepository.findByUsername(userDetails.getUsername()).orElse(null);
 
@@ -111,7 +133,6 @@ public class UserController {
 
         BigDecimal averagePriceBGN = BigDecimal.ZERO;
 
-        //ExceptionHandling
         try{
             averagePriceBGN = exRateService.convert("EUR","BGN",BigDecimal.valueOf(averagePriceEU));
         }catch(Exception e){
@@ -128,12 +149,16 @@ public class UserController {
         model.addAttribute("averagePriceEUR", df.format(averagePriceEU));
         model.addAttribute("averagePriceBGN", df.format(averagePriceBGN));
 
+        model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());
+
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("hasRole_Admin", isAdmin);
 
 
-        return "my-information";
+        return "my-informationFM";
 
     }
-
 
     @PostMapping("/delete-account")
     public String deleteAccount(@AuthenticationPrincipal UserDetails userDetails,

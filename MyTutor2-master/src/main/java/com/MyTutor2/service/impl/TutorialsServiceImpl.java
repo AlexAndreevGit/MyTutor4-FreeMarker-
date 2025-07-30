@@ -4,6 +4,7 @@ import com.MyTutor2.exceptions.CategoryNotFoundException;
 import com.MyTutor2.exceptions.TutorialNotFoundException;
 import com.MyTutor2.exceptions.UserNotFoundException;
 import com.MyTutor2.model.DTOs.TutorialAddDTO;
+import com.MyTutor2.model.DTOs.TutorialEditDTO;
 import com.MyTutor2.model.DTOs.TutorialViewDTO;
 import com.MyTutor2.model.entity.Category;
 import com.MyTutor2.model.entity.TutoringOffer;
@@ -64,6 +65,23 @@ public class TutorialsServiceImpl implements TutorialsService {
         return listOfViewOffers;
     }
 
+    @Override
+    public List<TutorialViewDTO> findAllTutoringOffersByWordInTitleAndSubjectID(String word, Long subjectId) {
+
+        List<TutoringOffer> listOfOffers = tutoringRepository.findAllByCategoryId(subjectId).stream()
+                .filter(offer -> offer.getName().toLowerCase().contains(word.toLowerCase()))
+                .collect(Collectors.toList());
+
+        if (listOfOffers.isEmpty()) {
+            LOGGER.warn("No tutoring offers found with the word: {}", word);
+        } else {
+            LOGGER.info("Found {} tutoring offers with the word: {}", listOfOffers.size(), word);
+        }
+
+        return returnListOfOffersAsViewDTO(listOfOffers);
+
+    }
+
 
     @Override
     public void addTutoringOffer(TutorialAddDTO tutorialAddDTO, String userName) throws CategoryNotFoundException,UserNotFoundException {
@@ -89,6 +107,29 @@ public class TutorialsServiceImpl implements TutorialsService {
     }
 
     @Override
+    public void addTutoringOfferAfterEdit(TutorialEditDTO tutorialEditDTO, String userName) throws CategoryNotFoundException,UserNotFoundException {
+
+        TutoringOffer tutoringOffer = modelMapper.map(tutorialEditDTO, TutoringOffer.class);
+
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+
+        tutoringOffer.setAddedBy(user);
+
+        Category category = categoryRepository.findByName(tutorialEditDTO.getCategory());
+
+        if (category == null) {
+            throw new CategoryNotFoundException(tutorialEditDTO.getCategory());
+        }
+
+        tutoringOffer.setCategory(category);
+
+        tutoringRepository.save(tutoringOffer);
+
+        LOGGER.info("A new tutoring offer was added by {}.", userName);
+
+    }
+
+    @Override
     public void removeOfferById(Long id) throws TutorialNotFoundException{
 
         if (!tutoringRepository.existsById(id)) {
@@ -96,6 +137,18 @@ public class TutorialsServiceImpl implements TutorialsService {
         }
 
         tutoringRepository.deleteById(id);
+    }
+
+    @Override
+    public TutorialEditDTO findTutorialById(Long id) throws TutorialNotFoundException {
+
+        TutoringOffer tutoringOffer = tutoringRepository.findById(id)
+                .orElseThrow(() -> new TutorialNotFoundException(id));
+
+        TutorialEditDTO tutorialEditDTO = modelMapper.map(tutoringOffer, TutorialEditDTO.class);
+        tutorialEditDTO.setCategory(tutoringOffer.getCategory().getName());
+
+        return tutorialEditDTO;
     }
 
     private List<TutorialViewDTO> returnListOfOffersAsViewDTO(List<TutoringOffer> listOfOffers) {

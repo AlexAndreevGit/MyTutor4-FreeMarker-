@@ -19,6 +19,10 @@ public class Category extends BaseEntity {
         this.name=name;
     }
 
+    public CategoryNameEnum getName() {
+        return name;
+    }
+
     public Category() {
     }
 

@@ -1,6 +1,8 @@
 // ChatBotAPI_6
 
 function performSearch() {
+
+    console.log("Test1")
     const question = document.getElementById('searchInput').value.trim();
 
     if (question === '') {
@@ -8,12 +10,18 @@ function performSearch() {
         return;
     }
 
+    console.log("Test2")
+
     // Show loading indicator
     const resultsOuterContainerDiv = document.getElementById('resultsOuterContainer');
     resultsOuterContainerDiv.style.display = 'block';
 
+    console.log("Test3")
+
     const resultsDiv = document.getElementById('searchResults');
     resultsDiv.innerHTML = '<p>Thinking about your question...</p>';
+
+    console.log("Test4")
 
     // Make AJAX request
     fetch('/tutorials/ask-question', {
@@ -31,6 +39,7 @@ function performSearch() {
             return response.json();
         })
         .then(data => {
+            console.log("Test5",data)
             displayResults(data);
         })
         .catch(error => {
@@ -39,7 +48,11 @@ function performSearch() {
 }
 
 function displayResults(data) {
+
+    console.log("Test6",data)
+
     const resultsDiv = document.getElementById('searchResults');
+    console.log("resultsDiv",resultsDiv)
     resultsDiv.innerHTML = marked.parse(data["answer"]);
 }
 

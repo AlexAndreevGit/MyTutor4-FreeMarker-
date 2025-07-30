@@ -27,6 +27,8 @@ public class TutoringOffer extends BaseEntity{
     @ManyToOne
     private User addedBy;
 
+
+
     public TutoringOffer(String name, String description, Double price, Category category, User addedBy) {
         this.name = name;
         this.description = description;

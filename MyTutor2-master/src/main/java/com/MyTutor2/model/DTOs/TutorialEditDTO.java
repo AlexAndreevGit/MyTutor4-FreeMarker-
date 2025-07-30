@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-public class TutorialAddDTO {
+public class TutorialEditDTO {
 
     @Size(min=2, max=40)
     @NotNull
@@ -21,7 +21,17 @@ public class TutorialAddDTO {
     @NotNull
     private CategoryNameEnum category ;
 
-    public TutorialAddDTO() {
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TutorialEditDTO() {
 
     }
 

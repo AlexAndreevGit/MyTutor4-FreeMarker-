@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
-<head th:replace="fragments/commons::head"></head>
+<#include "fragments/head.ftl">
 
 <body>
-<header th:replace="fragments/commons::nav"></header>
+
+<#include "fragments/header.ftl">
+
 <main class="container py-4">
+
     <div class="form-container">
 
         <div class="form-icon">
@@ -18,9 +20,9 @@
             <p class="form-subtitle">Join our tutoring community today</p>
         </div>
 
-        <form th:method="POST"
-              th:action="@{/users/register}"
-              th:object="${userRegisterDTO}">
+        <form action="/users/register" method="POST" >
+
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 
             <div class="form-group">
                 <label class="form-label" for="username">Username</label>
@@ -28,9 +30,14 @@
                        class="form-control"
                        id="username"
                        placeholder="Choose a username"
-                       th:field="*{username}"
-                       th:errorclass="is-invalid">
-                <small class="invalid-feedback">Username length must be between 2 and 40 characters!</small>
+                       name="Username"
+                       value="${userRegisterDTO.username!}">
+
+                <#if userRegisterDTO_errors?? && userRegisterDTO_errors.hasFieldErrors("username")>
+                    <small class="invalid-feedback">
+                        Username length must be between 2 and 40 characters!
+                    </small>
+                </#if>
             </div>
 
             <div class="form-group">
@@ -39,9 +46,15 @@
                        class="form-control"
                        id="email"
                        placeholder="Enter your email address"
-                       th:field="*{email}"
-                       th:errorclass="is-invalid">
-                <small class="invalid-feedback">Email can't be empty!</small>
+                       name="email"
+                       value="${userRegisterDTO.email!}">
+
+                <#if userRegisterDTO_errors?? && userRegisterDTO_errors.hasFieldErrors("email")>
+                    <small class="invalid-feedback">
+                        Email can't be empty!
+                    </small>
+                </#if>
+
             </div>
 
             <div class="form-group">
@@ -50,9 +63,15 @@
                        class="form-control"
                        id="password"
                        placeholder="Create a password"
-                       th:field="*{password}"
-                       th:errorclass="is-invalid">
-                <small class="invalid-feedback">Password length must be between 2 and 40 characters!</small>
+                       name="password"
+                       value="${userRegisterDTO.password!}">
+
+                <#if userRegisterDTO_errors?? && userRegisterDTO_errors.hasFieldErrors("password")>
+                    <small class="invalid-feedback">
+                        Password length must be between 2 and 40 characters!
+                    </small>
+                </#if>
+
             </div>
 
             <div class="form-group">
@@ -61,9 +80,15 @@
                        class="form-control"
                        id="confirmPassword"
                        placeholder="Confirm your password"
-                       th:field="*{confirmPassword}"
-                       th:errorclass="is-invalid">
-                <small class="invalid-feedback">Passwords must match!</small>
+                       name="confirmPassword"
+                       value="${userRegisterDTO.confirmPassword!}">
+
+                <#if userRegisterDTO_errors?? && userRegisterDTO_errors.hasFieldErrors("confirmPassword")>
+                    <small class="invalid-feedback">
+                        Password length must be between 2 and 40 characters!
+                    </small>
+                </#if>
+
             </div>
 
             <div class="form-actions">
@@ -71,17 +96,13 @@
                     <i class="fas fa-user-plus me-2"></i> Create Account
                 </button>
             </div>
-
-            <div class="form-footer">
-                Already have an account? <a th:href="@{/users/login}">Sign in</a>
-            </div>
-
         </form>
 
     </div>
+
 </main>
 
-<!--<footer th:replace="fragments/commons::footer"></footer>-->
+<#include "fragments/footer.ftl">
 
 </body>
 

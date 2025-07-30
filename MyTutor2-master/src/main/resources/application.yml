@@ -4,7 +4,7 @@ spring:
     name: demo2
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: "jdbc:mysql://localhost:3306/MyTutorProject10?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
+    url: "jdbc:mysql://localhost:3306/MyTutorProject14?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
     username: root
     password: "!VarnaVarna35!"
 #    url: "jdbc:mysql://alv4v3hlsipxnujn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ctw1urnaqst0giuj"
@@ -40,6 +40,14 @@ spring:
 
     #      ensures that data source initialization is delayed until the application context is fully prepared.
     defer-datasource-initialization: true
+
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .ftl
+    charset: UTF-8
+    cache: false
+    expose-spring-macro-helpers: true
+
 
   #ExchangeRates_Step_1 -> Settings/Configuration to connect to the REST API
   #ExchangeRates_Step_2 -> configure FOREX_API_KEY under environment variables

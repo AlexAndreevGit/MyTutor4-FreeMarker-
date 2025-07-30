@@ -24,13 +24,14 @@ public class SecurityConfig {
                     authorizeRequests ->
                             authorizeRequests
                                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                                    .requestMatchers("/","/home", "/about-us", "users/login","/users/login-error", "users/register","/api/convert").permitAll()
+                                    .requestMatchers("/","/home","/home2", "/about-us", "users/login", "users/loginFM","/users/login-error", "users/register", "users/registerFM","/api/convert").permitAll()
                                     .requestMatchers("/admin/**").hasRole("ADMIN")
                                     .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
                         formLogin
                                 .loginPage("/users/login")     //the login page should be our custom login page
+                                .loginProcessingUrl("/users/login")  // <--- Delete ? TODO
                                 .usernameParameter("username") //The name of the username parameter. Same as in the login.html
                                 .passwordParameter("password")
                                 .defaultSuccessUrl("/home",true)

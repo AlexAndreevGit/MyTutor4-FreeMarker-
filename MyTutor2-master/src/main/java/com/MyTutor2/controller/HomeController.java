@@ -4,6 +4,7 @@ import com.MyTutor2.model.entity.TutoringOffer;
 import com.MyTutor2.model.entity.User;
 import com.MyTutor2.repo.TutoringRepository;
 import com.MyTutor2.repo.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class HomeController {
 
 
     @GetMapping(value={"/home", "/"})
-    public String home(Model model) {
+    public String home2(Model model, Authentication auth) {
 
         List<TutoringOffer> countInformaticsTutorials = tutoringRepository.findAllByCategoryId(2L);
 
@@ -44,11 +45,24 @@ public class HomeController {
 
         model.addAttribute("countAllUsers", countAllUsers.size()-1);
 
+        model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());
+
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("hasRole_Admin", isAdmin);
+
         return "home";
     }
 
     @GetMapping("/about-us")
-    public String aboutUs(){
+    public String aboutUs2(Model model, Authentication auth){
+
+        model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());
+
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("hasRole_Admin", isAdmin);
+
         return "about-us";
     }
 
