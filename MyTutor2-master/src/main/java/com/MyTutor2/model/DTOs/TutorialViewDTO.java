@@ -1,5 +1,8 @@
 package com.MyTutor2.model.DTOs;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 public class TutorialViewDTO {
 
     private Long id;
@@ -11,6 +14,8 @@ public class TutorialViewDTO {
     private Double price;
 
     private String emailOfTheTutor;
+
+    private LocalDate createdOn;
 
     public Long getId() {
         return id;
@@ -50,5 +55,13 @@ public class TutorialViewDTO {
 
     public void setEmailOfTheTutor(String emailOfTheTutor) {
         this.emailOfTheTutor = emailOfTheTutor;
+    }
+
+    public LocalDate getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDate createdOn) {
+        this.createdOn = createdOn;
     }
 }

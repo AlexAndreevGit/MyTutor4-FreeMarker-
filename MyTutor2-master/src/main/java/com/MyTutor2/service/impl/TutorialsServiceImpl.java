@@ -100,6 +100,8 @@ public class TutorialsServiceImpl implements TutorialsService {
 
         tutoringOffer.setCategory(category);
 
+        tutoringOffer.setCreatedOn(java.time.LocalDate.now());
+
         tutoringRepository.save(tutoringOffer);
 
         LOGGER.info("A new tutoring offer was added by {}.", userName);
@@ -122,6 +124,7 @@ public class TutorialsServiceImpl implements TutorialsService {
         }
 
         tutoringOffer.setCategory(category);
+        tutoringOffer.setCreatedOn(java.time.LocalDate.now());
 
         tutoringRepository.save(tutoringOffer);
 
@@ -140,7 +143,7 @@ public class TutorialsServiceImpl implements TutorialsService {
     }
 
     @Override
-    public TutorialEditDTO findTutorialById(Long id) throws TutorialNotFoundException {
+    public TutorialEditDTO findTutorialByIdForEdit(Long id) throws TutorialNotFoundException {
 
         TutoringOffer tutoringOffer = tutoringRepository.findById(id)
                 .orElseThrow(() -> new TutorialNotFoundException(id));
@@ -149,6 +152,34 @@ public class TutorialsServiceImpl implements TutorialsService {
         tutorialEditDTO.setCategory(tutoringOffer.getCategory().getName());
 
         return tutorialEditDTO;
+    }
+
+    @Override
+    public TutoringOffer findTutoringOfferByID(Long id) {
+        return tutoringRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<TutorialViewDTO> sortAlphabetically(List<TutorialViewDTO> offers) {
+
+        if (offers != null && !offers.isEmpty()) {
+            return offers.stream()
+                    .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
+                    .collect(Collectors.toList());
+        }
+        return List.of(); // Return an empty list if offers is null or empty
+    }
+
+    @Override
+    public List<TutorialViewDTO> sortByDate(List<TutorialViewDTO> offers) {
+
+        if (offers != null && !offers.isEmpty()) {
+            return offers.stream()
+                    .sorted((o1, o2) -> o2.getCreatedOn().compareTo(o1.getCreatedOn())) // Sort by date in descending order
+                    .collect(Collectors.toList());
+        }
+
+        return List.of(); // Return an empty list if offers is null or empty
     }
 
     private List<TutorialViewDTO> returnListOfOffersAsViewDTO(List<TutoringOffer> listOfOffers) {
