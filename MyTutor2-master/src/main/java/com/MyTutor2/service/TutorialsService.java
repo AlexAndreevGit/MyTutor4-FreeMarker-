@@ -6,6 +6,7 @@ import com.MyTutor2.exceptions.UserNotFoundException;
 import com.MyTutor2.model.DTOs.TutorialAddDTO;
 import com.MyTutor2.model.DTOs.TutorialEditDTO;
 import com.MyTutor2.model.DTOs.TutorialViewDTO;
+import com.MyTutor2.model.entity.TutoringOffer;
 
 import java.util.List;
 
@@ -23,5 +24,13 @@ public interface TutorialsService {
 
     void removeOfferById(Long id) throws TutorialNotFoundException;
 
-    TutorialEditDTO findTutorialById(Long id) throws TutorialNotFoundException;
+    TutorialEditDTO findTutorialByIdForEdit(Long id) throws TutorialNotFoundException;
+
+    TutoringOffer findTutoringOfferByID(Long id);
+
+    List<TutorialViewDTO> sortAlphabetically(List<TutorialViewDTO> offers);
+
+    List<TutorialViewDTO> sortByDate(List<TutorialViewDTO> offers);
+
+
 }

@@ -19,7 +19,6 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-
     //SpringSecurity_11 list of all roles that the user has. If the user has the admin role then he is an administrator
     @ManyToMany(fetch = FetchType.EAGER)//@ManyToMany is "lasy" by default. We change it to "eager", so the roles are fetched when we retrieve a User.
     @JoinTable(
@@ -29,6 +28,14 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "UserRoleEntity_id") //specifies the foreign key that refers to the other entity
     )
     private List<UserRoleEntity> roles = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name="favoriteTutoringOffers",
+            joinColumns = @JoinColumn(name="User_id"),
+            inverseJoinColumns = @JoinColumn(name = "TutoringOffer_id")
+    )
+    private List<TutoringOffer> favoriteTutoringOffers = new ArrayList<>();
 
 
     public User() {
@@ -80,5 +87,13 @@ public class User extends BaseEntity {
 
     public void setRoles(List<UserRoleEntity> roles) {
         this.roles = roles;
+    }
+
+    public List<TutoringOffer> getFavoriteTutoringOffers() {
+        return favoriteTutoringOffers;
+    }
+
+    public void setFavoriteTutoringOffers(List<TutoringOffer> favoriteTutoringOffers) {
+        this.favoriteTutoringOffers = favoriteTutoringOffers;
     }
 }

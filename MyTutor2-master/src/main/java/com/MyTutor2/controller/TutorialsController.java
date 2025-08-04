@@ -7,9 +7,15 @@ import com.MyTutor2.exceptions.UserNotFoundException;
 import com.MyTutor2.model.DTOs.TutorialAddDTO;
 import com.MyTutor2.model.DTOs.TutorialEditDTO;
 import com.MyTutor2.model.DTOs.TutorialViewDTO;
+import com.MyTutor2.model.DTOs.UserDTO;
+import com.MyTutor2.model.entity.TutoringOffer;
+import com.MyTutor2.model.entity.User;
 import com.MyTutor2.model.enums.CategoryNameEnum;
+import com.MyTutor2.repo.UserRepository;
 import com.MyTutor2.service.OpenAIService;
 import com.MyTutor2.service.TutorialsService;
+import com.MyTutor2.service.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,8 +25,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +37,17 @@ public class TutorialsController {
 
     private TutorialsService tutorialsService;
     private OpenAIService openAIService;
+    private ModelMapper modelMapper;
+    private UserRepository userRepository; // TODO delete, not used
+    private UserService userService; // TODO delete, not used
 
-    public TutorialsController(TutorialsService tutorialsService, OpenAIService openAIService) {
+    public TutorialsController(TutorialsService tutorialsService, OpenAIService openAIService,ModelMapper modelMapper,UserRepository userRepository, UserService userService) {
         this.tutorialsService = tutorialsService;
         this.openAIService = openAIService;
+        this.modelMapper = modelMapper;            // TODO delete
+        this.userRepository = userRepository;      // TODO delete, not used
+        this.userService = userService;
     }
-
-//    @GetMapping("/add")
-//    public String add() {
-//        return "tutorial-add";
-//    }
 
     @GetMapping("/add")
     public String add2(Model model, Authentication auth) {
@@ -105,7 +112,7 @@ public class TutorialsController {
         String userName = userDetails.getUsername();
         tutorialsService.addTutoringOfferAfterEdit(tutorialEditDTO, userName);
 
-        return "redirect:/";
+        return "redirect:/users/my-informationFM";
     }
 
     @PostMapping("/ask-question")
@@ -193,12 +200,52 @@ public class TutorialsController {
 
     }
 
-    @GetMapping("/remove/{id}")
+    @GetMapping("/removeFromMyOffers/{id}")
     public String remove(@PathVariable Long id) throws TutorialNotFoundException {
+
+        List<User> allUsers = userService.findAllUsers();
+
+        for(User user : allUsers) {  //Iterate through all users to find the one who has this offer in his favorite offers
+            List<TutoringOffer> favoriteOffers = user.getFavoriteTutoringOffers();
+            for(TutoringOffer offer : favoriteOffers) {
+                if(offer.getId().equals(id)) {  //If the offer is found in the user's favorite offers
+                    favoriteOffers.remove(offer);  //Remove it from the user's favorite offers
+                    user.setFavoriteTutoringOffers(favoriteOffers);
+                    userRepository.save(user);  // Save the updated user back to the database
+                    break;  // Exit the loop once the offer is removed
+                }
+            }
+
+        }
 
         tutorialsService.removeOfferById(id);
 
         return "redirect:/home";
+    }
+
+
+
+    @GetMapping("/removeOfferFromFavorite/{id}")
+    public String removeOfferFromFavorite(@PathVariable Long id,
+                                          @AuthenticationPrincipal UserDetails userDetails,
+                                          @RequestHeader(value = "Referer",required = false) String referer) throws TutorialNotFoundException {
+
+        User user = userService.findUserByUsername(userDetails.getUsername());
+
+        List<TutoringOffer> listOfFavoriteOffers = user.getFavoriteTutoringOffers();
+
+        for(TutoringOffer offer : listOfFavoriteOffers) {  //Iterate through the list of favorite offers to find the one to remove
+            if(offer.getId().equals(id)) {
+                // If the offer is found, remove it from the list
+                listOfFavoriteOffers.remove(offer);
+                user.setFavoriteTutoringOffers(listOfFavoriteOffers);
+                userRepository.save(user);  // Save the updated user back to the database
+                break;  // Exit the loop once the offer is removed
+            }
+
+        }
+
+        return "redirect:" + (referer != null ? referer : "/") ;
     }
 
     //The input is send as a query parameter "http://localhost:8080/tutorials/informaticsFind?searchTerm=JAvas"
@@ -267,7 +314,7 @@ public class TutorialsController {
             return "redirect:/login";
         }
 
-        TutorialEditDTO tutorialEditDTO = tutorialsService.findTutorialById(id);
+        TutorialEditDTO tutorialEditDTO = tutorialsService.findTutorialByIdForEdit(id);
 
         model.addAttribute("tutorialEditDTO", tutorialEditDTO);
         model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());
@@ -281,5 +328,58 @@ public class TutorialsController {
         return "tutorial-editFM";
     }
 
+    //a method getting /sortAlphabetically
+    @GetMapping("/sortAlphabetically")
+    public String sortAlphabetically(@RequestParam("categoryId") Long categoryId,String typeForSort, Model model, Authentication auth) {
+
+        List<TutorialViewDTO> Offers = tutorialsService.findAllByCategoryID(categoryId);
+        List<TutorialViewDTO> sortedOffers = new ArrayList<>();
+
+        if(typeForSort.equals("alphabetical")){
+            sortedOffers = tutorialsService.sortAlphabetically(Offers);
+        }else if (typeForSort.equals("date")){
+            sortedOffers = tutorialsService.sortByDate(Offers);
+        }
+
+        model.addAttribute("informaticsTutorialsAsView", sortedOffers);
+        model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());
+
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("hasRole_Admin", isAdmin);
+
+        return "tutorialsInformaticsFM";
+    }
+
+
+    @GetMapping("/addToFavorite/{id}")
+    public String addToFavorite(@PathVariable Long id,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                @RequestHeader(value = "Referer", required = false) String referer) // to get the previous page URL
+            throws TutorialNotFoundException {
+
+        User user = userService.findUserByUsername(userDetails.getUsername());
+
+        List<TutoringOffer> listOfFavoriteOffers = user.getFavoriteTutoringOffers();
+
+        TutoringOffer tutoringOfferToBeAddedToFavorite = tutorialsService.findTutoringOfferByID(id);
+
+        //iterate through the listOfFavoriteOffers and check if the tutoringOfferToBeAddedToFavorite is already in the list
+        for (TutoringOffer offer : listOfFavoriteOffers) {
+            if (offer.getId().equals(tutoringOfferToBeAddedToFavorite.getId())) {
+
+                // If the offer is already in the favorites, return without adding it again
+                return "redirect:" + (referer != null ? referer : "/");
+            }
+        }
+
+        listOfFavoriteOffers.add(tutoringOfferToBeAddedToFavorite);
+
+        user.setFavoriteTutoringOffers(listOfFavoriteOffers);
+
+        // Here you would typically save the user back to the database
+        userRepository.save(user);
+        return "redirect:" + (referer != null ? referer : "/");  //Return to the previous page or home page if referer is null
+    }
 
 }

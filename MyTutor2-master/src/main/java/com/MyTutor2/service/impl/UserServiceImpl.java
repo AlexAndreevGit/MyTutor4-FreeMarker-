@@ -2,6 +2,7 @@ package com.MyTutor2.service.impl;
 
 import com.MyTutor2.exceptions.TutorialNotFoundException;
 import com.MyTutor2.model.DTOs.TutorialViewDTO;
+import com.MyTutor2.model.DTOs.UserDTO;
 import com.MyTutor2.model.DTOs.UserRegisterDTO;
 import com.MyTutor2.model.entity.User;
 import com.MyTutor2.model.entity.UserRoleEntity;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,20 +37,44 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     private UserRoleRepository userRoleRepository;
     private TutorialsService tutorialsService;
-    private TutoringRepository tutoringRepository;
+;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ExRateServiceImpl.class);
 
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder,
+    public UserServiceImpl(UserRepository userRepository,
+                           ModelMapper modelMapper,
+                           PasswordEncoder passwordEncoder,
                            UserRoleRepository userRoleRepository,
-                           TutorialsService tutorialsService, EntityManager entityManager, TutoringRepository tutoringRepository) {
+                           TutorialsService tutorialsService,
+                           EntityManager entityManager) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.userRoleRepository = userRoleRepository;
         this.tutorialsService = tutorialsService;
         this.entityManager = entityManager;
-        this.tutoringRepository = tutoringRepository;
+    }
+
+    @Override
+    public List<UserDTO> findAllUsersAsDTO() {
+
+        List<User> allUsers = userRepository.findAll();
+
+        if (allUsers != null && !allUsers.isEmpty()) {
+            List<UserDTO> userDTOs = new ArrayList<>();
+            for (User user : allUsers) {
+
+                if (user.getId() == 1L) {
+                    continue;
+                }
+
+                UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+                userDTOs.add(userDTO);
+            }
+            return userDTOs;
+        }
+
+        return List.of();
     }
 
     @Override
@@ -91,6 +117,47 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(logedInUser);
         System.out.println();
 
+
+    }
+
+    @Override
+    public void deleteUserById(Long userId) throws TutorialNotFoundException {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+
+            List<TutorialViewDTO> submittedByMeTutorialsAsView = tutorialsService.findAllTutoringOffersByUserId(user.getId());
+
+            for (TutorialViewDTO tutorialViewDTO : submittedByMeTutorialsAsView) {
+                tutorialsService.removeOfferById(tutorialViewDTO.getId());
+            }
+
+            user.getRoles().clear();
+
+            userRepository.delete(user);
+
+            LOGGER.info("User with id {} was deleted.", userId);
+        } else {
+            LOGGER.warn("User with id {} not found.", userId);
+        }
+    }
+
+    @Override
+    public User findUserById(Long id) throws TutorialNotFoundException {
+
+        return userRepository.findById(id).orElseThrow(() -> new TutorialNotFoundException(id));  //TODO update error
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+
+        List<User> allUsers = userRepository.findAll();
+
+        return allUsers.stream().filter(user -> !user.getId().equals((long)1)).collect(Collectors.toList());
 
     }
 
