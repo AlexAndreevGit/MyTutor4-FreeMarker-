@@ -1,13 +1,13 @@
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-light modern-navbar">
-        <a class="navbar-brand" href="/home">
+        <a class="navbar-brand" style="margin-left: 10px;" href="/home">
             <i class="fas fa-chalkboard-teacher brand-icon"></i>
             <span class="brand-text">MyTutor4</span>
         </a>
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
+            <li class="nav-item" >
                 <a class="nav-link-button" href="/home">
                     <i class="fas fa-home nav-icon"></i> Home
                 </a>
@@ -66,26 +66,23 @@
                     <i class="fas fa-info-circle nav-icon"></i> About Us
                 </a>
             </li>
+
+
         </ul>
 
         <div class="d-flex">
             <ul class="navbar-nav">
                 <#if !isAuthenticated?? || !isAuthenticated>
 
+
                     <li class="nav-item">
-                        <a class="btn-login" href="/users/login">
+                        <a class="btn-login" href="/users/loginFM">
                             <i class="fas fa-sign-in-alt nav-icon"></i> Login
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="btn-login" href="/users/loginFM">
-                            <i class="fas fa-sign-in-alt nav-icon"></i> LoginFM
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="btn-register" href="/users/registerFM">
+                        <a class="btn-register" href="/users/registerFM" style="margin-right: 5px;">
                             <i class="fas fa-user-plus nav-icon"></i> Register
                         </a>
                     </li>
@@ -93,6 +90,12 @@
                 </#if>
 
                 <#if isAuthenticated?? && isAuthenticated>
+
+                    <div class="weather-information">
+                            <h3 style="margin-right: 10px">City: <span id="weather-city"></span></h3>
+                            <h3>Temp: <span id="weather-temp"></span></h3>
+                    </div>
+
                     <li class="nav-item">
                         <form method="post" action="/users/logout">
 
@@ -108,4 +111,24 @@
             </ul>
         </div>
     </nav>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/weather/berlin')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate the HTML elements with the weather data
+                    document.getElementById("weather-city").textContent = data.city;
+                    document.getElementById("weather-temp").textContent = data.temperature + " " + data.units;
+                })
+                .catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
+        });
+    </script>
 </header>
