@@ -4,6 +4,7 @@ import com.MyTutor2.exceptions.TutorialNotFoundException;
 import com.MyTutor2.model.DTOs.TutorialViewDTO;
 import com.MyTutor2.model.DTOs.UserLogInDTO;
 import com.MyTutor2.model.DTOs.UserRegisterDTO;
+import com.MyTutor2.model.entity.TutoringOffer;
 import com.MyTutor2.model.entity.User;
 import com.MyTutor2.repo.UserRepository;
 import com.MyTutor2.service.ExRateService;
@@ -12,6 +13,7 @@ import com.MyTutor2.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/users")
@@ -35,12 +38,14 @@ public class UserController {
     private UserRepository userRepository;
     private TutorialsService tutorialsService;
     private ExRateService exRateService;
+    private ModelMapper modelMapper;
 
-    public UserController(UserService userService, UserRepository userRepository, TutorialsService tutorialsService, ExRateService exRateService) {
+    public UserController(UserService userService, UserRepository userRepository, TutorialsService tutorialsService, ExRateService exRateService,ModelMapper modelMapper) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.tutorialsService = tutorialsService;
         this.exRateService = exRateService;
+        this.modelMapper = modelMapper;
     }
 
     @ModelAttribute("userRegisterDTO")
@@ -77,7 +82,7 @@ public class UserController {
         }
 
         userService.registerUser(userRegisterDTO);
-        return "redirect:login";
+        return "redirect:loginFM";
     }
 
     @ModelAttribute("userLogInDTO")
@@ -111,12 +116,17 @@ public class UserController {
         return "loginFM";
     }
 
-
     @GetMapping("/login-error")
     public String loginError(Model model) {
+
+        UserLogInDTO userLogInDTO=new UserLogInDTO();
+        userLogInDTO.setUsername("user1");
+        userLogInDTO.setPassword("12345");
+
+        model.addAttribute("userLogInDTO",userLogInDTO);
         model.addAttribute("loginError", true);
 
-        return "login";
+        return "loginFM";
     }
 
     @RequestMapping(value = "/my-informationFM", method = RequestMethod.GET)
@@ -125,6 +135,15 @@ public class UserController {
         User logedInUser= userRepository.findByUsername(userDetails.getUsername()).orElse(null);
 
         List<TutorialViewDTO> submittedByMeTutorialsAsView = tutorialsService.findAllTutoringOffersByUserId(logedInUser.getId());
+        List<TutoringOffer> myFavoriteTutoringOffers = userService.findUserByUsername(userDetails.getUsername()).getFavoriteTutoringOffers();
+
+        List<TutorialViewDTO> myFavoriteTutoringOffersAsDTO = myFavoriteTutoringOffers.stream()
+                .map(tutorial -> {
+                    TutorialViewDTO dto = modelMapper.map(tutorial, TutorialViewDTO.class);
+                    dto.setEmailOfTheTutor(tutorial.getAddedBy().getEmail());
+                    return dto;
+                })
+                .toList();
 
         double averagePriceEU = submittedByMeTutorialsAsView.stream()
                 .mapToDouble(TutorialViewDTO::getPrice)
@@ -143,6 +162,7 @@ public class UserController {
         model.addAttribute("userEmail",logedInUser.getEmail());
         model.addAttribute("numberOfClasses",submittedByMeTutorialsAsView.size());
         model.addAttribute("submittedByMeTutorialsAsView",submittedByMeTutorialsAsView);
+        model.addAttribute("myFavoriteTutoringOffersAsDTO",myFavoriteTutoringOffersAsDTO);
 
         DecimalFormat df = new DecimalFormat("#.00");
 
@@ -167,9 +187,26 @@ public class UserController {
 
         User logedInUser= userRepository.findByUsername(userDetails.getUsername()).orElse(null);
 
+        //Create a list with all the users
+        List<User> allUsers= userRepository.findAll();
+        List<TutorialViewDTO> ollUsersTutoringOffers = tutorialsService.findAllTutoringOffersByUserId(logedInUser.getId());
+
+        for(User user: allUsers){
+
+            for(TutorialViewDTO tutorialViewDTO: ollUsersTutoringOffers){
+
+                //if the user has this offer in his favorites then remove it
+                if(user.getFavoriteTutoringOffers().stream().anyMatch(tutorial -> tutorial.getId().equals(tutorialViewDTO.getId()))){
+                    user.getFavoriteTutoringOffers().removeIf(tutorial -> tutorial.getId().equals(tutorialViewDTO.getId()));
+                    userRepository.save(user);
+                }
+            }
+        }
+
+
         userService.deleteUser(logedInUser);
 
-        //--- logout ---
+
 
         //get the current user's authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -183,6 +220,15 @@ public class UserController {
 
         return "redirect:/";
     }
+
+    @GetMapping("/removeByAdmin/{id}")
+    public String removeUserByAdmin(@PathVariable("id") Long userId) throws TutorialNotFoundException {
+
+        userService.deleteUserById(userId);
+
+        return "redirect:/admin/statisticsFM";
+    }
+
 
 
 }
