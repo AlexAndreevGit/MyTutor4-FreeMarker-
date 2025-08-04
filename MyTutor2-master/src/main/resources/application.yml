@@ -4,7 +4,7 @@ spring:
     name: demo2
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: "jdbc:mysql://localhost:3306/MyTutorProject14?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
+    url: "jdbc:mysql://localhost:3306/MyTutorProject18?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
     username: root
     password: "!VarnaVarna35!"
 #    url: "jdbc:mysql://alv4v3hlsipxnujn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ctw1urnaqst0giuj"
@@ -48,6 +48,19 @@ spring:
     cache: false
     expose-spring-macro-helpers: true
 
+
+  mail:
+    host: smtp.your-provider.com
+    port: 587
+    username: your-email@example.com
+    password: your-password
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   #ExchangeRates_Step_1 -> Settings/Configuration to connect to the REST API
   #ExchangeRates_Step_2 -> configure FOREX_API_KEY under environment variables
