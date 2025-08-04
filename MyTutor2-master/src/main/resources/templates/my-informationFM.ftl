@@ -10,7 +10,7 @@
 
 <main class="container py-4">
 
-    <div style="max-width: 1000px;">
+    <div class="offers-container">
 
         <div class="profile-header">
 
@@ -22,6 +22,7 @@
             <p class="profile-subtitle" >${userEmail}</p>
         </div>
 
+        <div class="div-home">
         <div class="profile-stats">
 
             <div class="stat-card">
@@ -64,100 +65,178 @@
             </div>
 
         </div>
-
-    </div>
-
-    <div class="offers-list-container">
-
-        <div class="section-header">
-            <h2 class="section-title">
-                <i class="fas fa-clipboard-list me-2"></i>
-                My Tutoring Offers
-            </h2>
-
-            <a href="/tutorials/add" class="btn-action secondary">
-                <i class="fas fa-plus-circle"></i> Add New Offer
-            </a>
-
         </div>
 
-        <div class="offers-list">
-            <#list submittedByMeTutorialsAsView as w>
-                <div class="offer-card">
+        <div class="offers-list-container">
 
-                    <div class="offer-card-content">
-                        <div class="offer-header">
-                            <h4 class="offer-title">${w.name}</h4>
-                            <div class="offer-price">
-                                <span>${w.price}</span>
-                                <span> EUR </span>
-                                <span class="price-per">per hour</span>
+            <div class="section-header">
+                <h2 style="padding-right: 5px">
+                    <i class="fas fa-clipboard-list me-2" style="color: #6366f1;"></i>
+                    My Tutoring Offers
+                </h2>
+
+                <a href="/tutorials/add" class="btn-action secondary">
+                    <i class="fas fa-plus-circle"></i> Add New Offer
+                </a>
+
+            </div>
+
+            <div class="offers-list">
+                <#list submittedByMeTutorialsAsView as w>
+                    <div class="offer-card">
+
+                        <div class="offer-card-content">
+                            <div class="offer-header">
+                                <h4 class="offer-title">${w.name}</h4>
+                                <div class="offer-price">
+                                    <span>${w.price}</span>
+                                    <span> EUR </span>
+                                    <span class="price-per">per hour</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="offer-body">
-                            <p class="offer-description">${w.description}</p>
-                        </div>
+                            <div class="offer-body">
+                                <p class="offer-description">${w.description}</p>
+                            </div>
 
-                        <div class="offer-footer">
-                            <div class="offer-tutor">
-                                <i class="fas fa-user-graduate me-2"></i>
-                                <a href="#" class="tutor-email" >${w.emailOfTheTutor}</a>
+                            <div class="offer-footer">
+
+                                <div class="offer-tutor">
+
+                                    <i class="fas fa-user-graduate me-2" style="margin-right: 8px"></i>
+                                    <p style="margin-right: 40px">${w.emailOfTheTutor}</p>
+
+                                    <i class="fas fa-calendar-alt" style="margin-right: 8px"></i>
+                                    <p>${w.getCreatedOn()}</p>
+                                </div>
+
+                            </div>
+
+                            <div class="offer-actions">
+
+                                <a class="btn-delete" style="margin-right: 35px;" href="/tutorials/edit/${w.id}">
+                                    <i class="fas fa-wrench" style="margin-right: 6px;"></i> Edit
+                                </a>
+
+                                <a class="btn-delete" href="/tutorials/removeFromMyOffers/${w.id}" onclick="return confirm('Are you sure you want to delete the offer')">
+                                    <i class="fas fa-trash-alt" style="margin-right: 6px;"></i> Remove
+                                </a>
+
                             </div>
 
                         </div>
 
-                        <div class="offer-actions">
+                        <#if !submittedByMeTutorialsAsView?has_content>
+                            <div class="no-off">
+                                <i class="fas fa-search fa-3x mb-3"></i>
+                                <h3>No mathematics offers available</h3>
+                                <p>Check back later or explore other subject areas.</p>
+                            </div>
+                        </#if>
 
-                            <a class="btn-delete" href="/tutorials/edit/${w.id}">
-                                <i class="fas fa-wrench" style="margin-right: 8px;"></i> Edit
-                            </a>
-
-                            <a class="btn-delete" href="/tutorials/remove/${w.id}">
-                                <i class="fas fa-trash-alt" style="margin-right: 8px;"></i> Remove
-                            </a>
-
-                        </div>
 
                     </div>
 
-                    <#if !submittedByMeTutorialsAsView?has_content>
-                        <div class="no-off">
-                            <i class="fas fa-search fa-3x mb-3"></i>
-                            <h3>No mathematics offers available</h3>
-                            <p>Check back later or explore other subject areas.</p>
-                        </div>
-                    </#if>
+                </#list>
 
-
-                </div>
-
-            </#list>
-
-        </div>
-
-    </div>
-
-    <div class="div-home-padding-1rem" style="max-width: 1000px;">
-
-        <div style="display: flex ">
-            <p class="subject-description" style="padding-top: 1.2rem">Account termination is permanent and cannot be
-                undone.</p>
-
-            <div style="text-align: right;">
-                <form action="/users/delete-account" method="post">
-
-                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-
-                    <button type="submit" class="button-delete-account"
-                            onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
-                            <i class="fas fa-trash-alt" style="margin-right: 8px;"></i> Delete account
-                    </button>
-                </form>
             </div>
+
+        </div>
+
+        <div class="offers-list-container">
+
+            <div class="section-header">
+                <h2 style="padding-right: 5px">
+                    <i class="fas fa-star" style="color: #6366f1;"></i>
+                    My favorite Tutoring Offers
+                </h2>
+
+            </div>
+
+            <div class="offers-list">
+                <#list myFavoriteTutoringOffersAsDTO as w>
+                    <div class="offer-card">
+
+                        <div class="offer-card-content">
+                            <div class="offer-header">
+                                <h4 class="offer-title">${w.name}</h4>
+                                <div class="offer-price">
+                                    <span>${w.price}</span>
+                                    <span> EUR </span>
+                                    <span class="price-per">per hour</span>
+                                </div>
+                            </div>
+
+                            <div class="offer-body">
+                                <p class="offer-description">${w.description}</p>
+                            </div>
+
+                            <div class="offer-footer">
+
+                                <div class="offer-tutor">
+
+                                    <i class="fas fa-user-graduate me-2" style="margin-right: 8px"></i>
+                                    <p style="margin-right: 40px">${w.emailOfTheTutor}</p>
+
+                                    <i class="fas fa-calendar-alt" style="margin-right: 8px"></i>
+                                    <p>${w.getCreatedOn()}</p>
+                                </div>
+
+                            </div>
+
+                            <div class="offer-actions">
+
+                                <a class="btn-delete" href="/tutorials/removeOfferFromFavorite/${w.id}" onclick="return confirm('Are you sure you want to remove the offer from favorites')">
+                                    <i class="fas fa-trash-alt" style="margin-right: 6px;"></i> Remove
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        <#if !myFavoriteTutoringOffersAsDTO?has_content>
+                            <div class="no-off">
+                                <i class="fas fa-search fa-3x mb-3"></i>
+                                <h3>No mathematics offers available</h3>
+                                <p>Check back later or explore other subject areas.</p>
+                            </div>
+                        </#if>
+
+
+                    </div>
+
+                </#list>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="div-home-padding-1rem" style="max-width: 1000px;">
+
+            <div style="display: flex ">
+                <p class="subject-description" style="padding-top: 1.2rem">Account termination is permanent and cannot be
+                    undone.</p>
+
+                <div style="text-align: right;">
+                    <form action="/users/delete-account" method="post">
+
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+
+                        <button type="submit" class="button-delete-account"
+                                onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                            <i class="fas fa-trash-alt" style="margin-right: 8px;"></i> Delete account
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
     </div>
+
+
 
 </main>
 

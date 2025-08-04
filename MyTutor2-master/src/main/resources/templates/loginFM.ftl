@@ -22,6 +22,8 @@
         <form action="/users/login"
               method="POST">
 
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
             <div class="form-group">
                 <label class="form-label" for="username">Username</label>
                 <input type="text"
@@ -42,11 +44,23 @@
                        value="${userLogInDTO.password}"/>
             </div>
 
+            <#assign showError = loginError!false>
+            <#if showError>
+                <div class="login-error-field">
+                    <small class="error-message-login">
+                        Invalid login credentials. Please try again.
+                    </small>
+                </div>
+            </#if>
+
             <div class="form-actions">
                 <button type="submit" class="btn-submit">
                     <i class="fas fa-sign-in-alt me-2"></i> Login
                 </button>
             </div>
+
+
+
         </form>
 
     </div>

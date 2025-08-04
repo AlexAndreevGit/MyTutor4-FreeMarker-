@@ -12,7 +12,7 @@
         <div class="div-home" >
 
             <div class="stats-header-home">
-                <h1 class="main-title">Welcome to MyTutor2 Home1 Freemarker</h1>
+                <h1 class="main-title">Welcome to MyTutor 4</h1>
             </div>
 
             <div class="div-home-two-boxes" >
@@ -137,11 +137,11 @@
 
             <div class="picture-section-actions" >
 
-                <a href="/users/login" class="btn-login">
+                <a href="/users/loginFM" class="btn-login">
                     <i class="fas fa-sign-in-alt nav-icon"></i> Login
                 </a>
 
-                <a href="/users/register" class="btn-register">
+                <a href="/users/registerFM" class="btn-register">
                     <i class="fas fa-user-plus nav-icon"></i> Register
                 </a>
 

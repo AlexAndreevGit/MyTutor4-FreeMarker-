@@ -1,7 +1,9 @@
 package com.MyTutor2.controller;
 
+import com.MyTutor2.model.DTOs.UserDTO;
 import com.MyTutor2.model.entity.User;
 import com.MyTutor2.repo.UserRepository;
+import com.MyTutor2.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,8 +19,11 @@ public class StatisticsController {
 
     private UserRepository userRepository;
 
-    public StatisticsController( UserRepository userRepository) {
+    private UserService userService;
+
+    public StatisticsController( UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
 //    @PreAuthorize("hasRole('ADMIN')") // SpringSecurity_12 Only users with the ADMIN role can access this method
@@ -38,6 +43,9 @@ public class StatisticsController {
 
         List<User> countAllUsers= userRepository.findAll();
 
+        List<UserDTO> allUsers = userService.findAllUsersAsDTO();
+
+        model.addAttribute("allUsers", allUsers);
         model.addAttribute("countAllUsers", countAllUsers.size()-1);
 
         model.addAttribute("isAuthenticated", auth != null && auth.isAuthenticated());

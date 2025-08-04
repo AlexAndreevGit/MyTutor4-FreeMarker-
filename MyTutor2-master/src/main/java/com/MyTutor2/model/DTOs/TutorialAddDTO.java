@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
+
 public class TutorialAddDTO {
 
     @Size(min=2, max=40)
@@ -21,9 +23,7 @@ public class TutorialAddDTO {
     @NotNull
     private CategoryNameEnum category ;
 
-    public TutorialAddDTO() {
-
-    }
+    public TutorialAddDTO() {}
 
     public String getName() {
         return name;
@@ -56,5 +56,6 @@ public class TutorialAddDTO {
     public void setPrice(Double price) {
         this.price = price;
     }
+
 
 }
